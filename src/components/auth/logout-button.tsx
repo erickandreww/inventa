@@ -24,7 +24,7 @@ export function LogoutButton() {
 
   return (
     <button type="submit" onClick={handleLogout} disabled={isPending} 
-    className="rounded-md border px-4 py-2 disabled:opacity-50">
+    className="rounded-md border px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50">
       {isPending ? "Loging out" : "Logout"}
     </button>
   )
