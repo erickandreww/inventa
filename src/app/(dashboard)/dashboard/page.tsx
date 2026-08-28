@@ -8,7 +8,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="mt-8 rounded-lg border bg-white p-6">
+      <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <p className="text-gray-600">
           Dashboard content will be added later.
         </p>

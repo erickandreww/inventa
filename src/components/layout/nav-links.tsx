@@ -40,7 +40,7 @@ export function NavLinks({mobile = false}: NavLinksProps) {
         return (
           <Link key={link.href} href={link.href} 
             className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              isActive ? "bg-black text-white" : "text-gray-600 hover:bg-gray-100 hover:text-black"
+              isActive ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-100 hover:text-gray-950"
             }`}
           >
             {link.label}
