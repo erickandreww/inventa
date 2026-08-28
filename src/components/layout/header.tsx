@@ -14,7 +14,7 @@ export function Header({ user }: HeaderProps) {
       <div className="flex h-16 items-center justify-between px-4 sm:px-6">
         <div>
           <p className="text-sm text-gray-500">
-            Welcome Back
+            Welcome back
           </p>
           <p className="font-medium">
             {user.name}

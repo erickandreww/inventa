@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { Header } from "@/components/layout/header";
-import { SideBar } from "@/components/layout/sidebar";
+import { Sidebar } from "@/components/layout/sidebar";
 
 type DashboardLayoutProps = {
   children: ReactNode;
@@ -21,8 +21,8 @@ export default async function DashboardLayout({
   }
   
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <SideBar />
+    <div className="flex min-h-screen bg-gray-50 text-gray-900">
+      <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header 
           user={{

@@ -1,10 +1,8 @@
-import { LogoutButton } from "@/components/auth/logout-button";
-
 export default function DashboardPage() {
   return (
     <div>
       <div>
-        <h1 className="text-2x1 font-bold">Dashboard</h1>
+        <h1 className="text-2xl font-bold">Dashboard</h1>
         <p className="mt-1 text-gray-600">
           Overview of your inventory.
         </p>
