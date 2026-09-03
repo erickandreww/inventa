@@ -13,7 +13,8 @@
     "better-auth": "^1.7.1",
     "next": "16.3.1",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@prisma/adapter-pg": "^7.9.1",

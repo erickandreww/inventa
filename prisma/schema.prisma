@@ -19,7 +19,7 @@ enum MovementType {
 
 model Category {
   id        String    @id @default(cuid())
-  name      String
+  name      String    @unique
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   products  Product[]
@@ -34,7 +34,7 @@ model Product {
   quantity     Int             @default(0)
   minimumStock Int             @default(0)
   categoryId   String?
-  category     Category?       @relation(fields: [categoryId], references: [id])
+  category     Category?       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   movements    StockMovement[]
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
