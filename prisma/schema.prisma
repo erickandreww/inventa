@@ -28,7 +28,7 @@ model Category {
 model Product {
   id           String          @id @default(cuid())
   name         String
-  sku          String?
+  sku          String?         @unique
   description  String?
   price        Decimal         @db.Decimal(10, 2)
   quantity     Int             @default(0)
@@ -45,7 +45,7 @@ model StockMovement {
   type      MovementType
   quantity  Int
   productId String
-  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
   createdAt DateTime     @default(now())
 }
 

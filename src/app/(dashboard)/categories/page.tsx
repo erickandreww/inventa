@@ -81,7 +81,7 @@ export default async function CategoriesPage() {
                     {category._count.products}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-start justify-end gap-4">
+                    <div className="flex items-baseline justify-end gap-4">
                       <Link 
                         href={`/categories/${category.id}/edit`}
                         className="text-sm font-medium text-gray-700 hover:text-gray-950 hover:underline">
