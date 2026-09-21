@@ -5,6 +5,9 @@ import { DeleteProductButton } from "@/components/products/delete-product-button
 
 export default async function ProductsPage() {
   const products = await prisma.product.findMany({
+    where: {
+      archivedAt: null,
+    },
     orderBy: {
       name: "asc",
     },
@@ -24,11 +27,18 @@ export default async function ProductsPage() {
             Manage your inventory products.
           </p>
         </div>
-        <Link 
-          href="/products/new"
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800">
-            Add Product
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link 
+            href="/products/archived"
+            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            Archived products
+          </Link>
+          <Link 
+            href="/products/new"
+            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800">
+              Add Product
+          </Link>
+        </div>
       </div>
 
       <div className="mt-8 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -69,6 +79,9 @@ export default async function ProductsPage() {
                   <th className="px-6 py-3 text-sm font-medium text-gray-700">
                     Minimum
                   </th>
+                  <th className="px-6 py-3 text-sm font-medium text-gray-700">
+                    Status
+                  </th>
                   <th className="px-6 py-3 text-right font-medium text-gray-700">
                     Actions
                   </th>
@@ -76,40 +89,56 @@ export default async function ProductsPage() {
               </thead>
               
               <tbody className="divide-y divide-gray-200">
-                {products.map((product) => (
-                  <tr key={product.id}>
-                    <td className="px-6 py-4 font-medium text-gray-900">
-                      {product.name}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {product.sku ?? "—"}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {product.category?.name ?? "Uncategorized"}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {product.price.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {product.quantity}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {product.minimumStock}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-baseline justify-end gap-4">
-                        <Link
-                          href={`/products/${product.id}/edit`}
-                          className="text-sm font-medium text-gray-700 hover:text-gray-950 hover:underline">
-                          Edit
-                        </Link>
-                        <DeleteProductButton
-                          productId={product.id}
-                          productName={product.name} />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {products.map((product) => {
+                  const isLowStock =
+                    product.minimumStock > 0 &&
+                    product.quantity <= product.minimumStock
+                  return (
+                    <tr key={product.id}>
+                      <td className="px-6 py-4 font-medium text-gray-900">
+                        {product.name}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {product.sku ?? "—"}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {product.category?.name ?? "Uncategorized"}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {product.price.toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {product.quantity}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {product.minimumStock}
+                      </td>
+                      <td className="px-6 py-4">
+                        {isLowStock ? (
+                          <span className="rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700">
+                            Low Stock
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-green-700">
+                            In Stock
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-baseline justify-end gap-4">
+                          <Link
+                            href={`/products/${product.id}/edit`}
+                            className="text-sm font-medium text-gray-700 hover:text-gray-950 hover:underline">
+                            Edit
+                          </Link>
+                          <DeleteProductButton
+                            productId={product.id}
+                            productName={product.name} />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
         </div>

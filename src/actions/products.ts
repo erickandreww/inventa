@@ -24,6 +24,10 @@ export type DeleteProductActionState = {
   message?: string,
 };
 
+export type RestoreProductActionState = {
+  message?: string,
+};
+
 export async function createProduct(
   previousState: ProductActionState,
   formData: FormData,
@@ -271,27 +275,95 @@ export async function deleteProduct(
     };
   }
 
-  if (product._count.movements > 0) {
+  if (product.quantity > 0) {
     return {
       message: 
-        "This category cannot be deleted because it contains products.",
+        "This product cannot be removed white it still has stock. Record a stock exit first.",
     };
   }
 
   try {
-    await prisma.product.delete({
+    if (product._count.movements === 0) {
+      await prisma.product.delete({
+        where: {
+          id: productId,
+        },
+      });
+    } else {
+      await prisma.product.update({
+        where: {
+          id: productId,
+        },
+        data: {
+          archivedAt: new Date(),
+          categoryId: null,
+        },
+      });
+    }
+  } catch {
+    return {
+      message: "Could not remove product. Please try again"
+    };
+  }
+  
+  revalidatePath("/products");
+  revalidatePath("/categories");
+  revalidatePath("/stock");
+
+  return {};
+}
+
+export async function restoreProduct(
+  productId: string,
+  previousState: RestoreProductActionState,
+  formData: FormData,
+): Promise<RestoreProductActionState> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return {
+      message: "Unauthorized."
+    }
+  }
+
+  const product = await prisma.product.findUnique({
+    where: {
+      id: productId,
+    },
+  });
+
+  if (!product) {
+    return {
+      message: "Product not found.",
+    };
+  }
+
+  if (!product.archivedAt) {
+    return {
+      message: "This product is already active.",
+    };
+  }
+  
+  try {
+    await prisma.product.update({
       where: {
         id: productId,
+      },
+      data: {
+        archivedAt: null,
       },
     });
   } catch {
     return {
-      message: "Could not delete product. Please try again"
+      message: "Could not restore product. Please try again.",
     };
   }
-  
-  revalidatePath("/product");
-  revalidatePath("/categories");
+
+  revalidatePath("/products");
+  revalidatePath("/products/archived");
+  revalidatePath("/stock");
 
   return {};
 }
