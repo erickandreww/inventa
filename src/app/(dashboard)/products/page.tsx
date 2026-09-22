@@ -2,19 +2,116 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 
 import { DeleteProductButton } from "@/components/products/delete-product-button"
+import { ProductFilters } from "@/components/products/product-filters";
 
-export default async function ProductsPage() {
-  const products = await prisma.product.findMany({
-    where: {
-      archivedAt: null,
-    },
-    orderBy: {
-      name: "asc",
-    },
-    include: {
-      category:true,
-    },
+type ProductPageProps = {
+  searchParams: Promise<{
+    query?: string;
+    categoryId?: string;
+    status?: string;
+  }>;
+};
+
+export default async function ProductsPage({
+  searchParams,
+}: ProductPageProps) {
+  const params = await searchParams;
+
+  const query = params.query?.trim() ?? "";
+  const categoryId = params.categoryId ?? "";
+
+  const status = 
+    params.status === "in" ||
+    params.status === "low" ||
+    params.status === "out"
+      ? params.status
+      : "";
+
+  const [categories, candidateProducts] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: {
+        name: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
+
+    prisma.product.findMany({
+      where: {
+        archivedAt: null,
+
+        ...(categoryId
+          ? {
+            categoryId,
+          }
+        : {}),
+
+        ...(query
+          ? {
+            OR: [
+              {
+                name: {
+                  contains: query,
+                  mode: "insensitive",
+                },
+              },
+              {
+                sku: {
+                  contains: query,
+                  mode: "insensitive",
+                },
+              },
+              {
+                description: {
+                  contains: query,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          }
+        : {}),
+      },
+      orderBy: {
+        name: "asc",
+      },
+      include: {
+        category: true,
+      },
+    }),
+  ]);
+
+  const products = candidateProducts.filter((product) => {
+    if (status === "out") {
+      return product.quantity === 0;
+    }
+
+    if (status === "low") {
+      return (
+        product.quantity > 0 &&
+        product.minimumStock > 0 &&
+        product.quantity <= product.minimumStock
+      );
+    }
+
+    if (status === "in") {
+      return (
+        product.quantity > 0 &&
+        (
+          product.minimumStock === 0 ||
+          product.quantity > product.minimumStock
+        )
+      );
+    }
+
+    return true;
   });
+
+  const hasFilters = 
+    Boolean(query) ||
+    Boolean(categoryId) ||
+    Boolean(status);
 
   return (
     <div>
@@ -41,20 +138,45 @@ export default async function ProductsPage() {
         </div>
       </div>
 
+      <ProductFilters 
+        categories={categories}
+        query={query}
+        categoryId={categoryId}
+        status={status}
+      />
+
       <div className="mt-8 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
         {products.length === 0 ? (
           <div className="p-8 text-center">
-            <h2 className="font-medium text-gray-900">
-              No Products yet
-            </h2>
-            <p className="mt-1 text-sm text-gray-600">
-              Create your first product to start managing your inventory.
-            </p>
-            <Link 
-              href="/products/new"
-              className="mt-4 inline-block rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800">
-                Create Product
-              </Link>
+            {hasFilters ? (
+              <>
+                <h2 className="font-medium text-gray-900">
+                  No Products found
+                </h2>
+                <p className="mt-1 text-sm text-gray-600">
+                  No products match the selected search and filters.
+                </p>
+                <Link 
+                  href="/products"
+                  className="mt-4 inline-block rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  Clear filters
+                </Link>
+              </>
+            ) : (
+              <>
+                <h2 className="font-medium text-gray-900">
+                  No Products yet
+                </h2>
+                <p className="mt-1 text-sm text-gray-600">
+                  Create your first product to start managing your inventory.
+                </p>
+                <Link 
+                  href="/products/new"
+                  className="mt-4 inline-block rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800">
+                  Create Product
+                </Link>
+              </>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
