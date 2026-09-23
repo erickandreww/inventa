@@ -127,7 +127,7 @@ export function StockMovementForm({
             min="1"
             step="1"
             placeholder="0"
-            className="mt-2 w-full rounded-md border border-gray-300 ox-3 py-2 text-gray-900 outline-none focus:border-gray-500"
+            className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 outline-none focus:border-gray-500"
             aria-describedby="quantity-error" 
           />
 

@@ -32,7 +32,7 @@ export function DeleteProductButton({
     event: FormEvent<HTMLFormElement>,
   ) {
     const confirmed = window.confirm(
-      `Are you sure you want to delete "${productName}"?`,
+      `Are you sure you want to remove "${productName}"?`,
     );
 
     if (!confirmed) {
@@ -49,7 +49,7 @@ export function DeleteProductButton({
           type="submit"
           disabled={isPending}
           className="text-sm font-medium text-red-600 hover:text-red-800 hover:underline disabled=opacity-50">
-            {isPending ? "Deleting..." : "Delete"}
+            {isPending ? "Removing..." : "Remove"}
           </button>
       </form>
 
